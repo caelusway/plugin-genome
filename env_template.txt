@@ -1,0 +1,15 @@
+# AlphaGenome API Configuration Template
+# Copy this content to a file named .env in the same directory
+
+# Get your API key from: https://deepmind.google.com/science/alphagenome
+ALPHA_GENOME_API_KEY=your-api-key-here
+
+# Optional: Set other environment variables
+# PYTHONPATH=.
+# DEBUG=true
+
+# Instructions:
+# 1. Copy this file content to a new file named .env
+# 2. Replace 'your-api-key-here' with your actual AlphaGenome API key
+# 3. Save the .env file in the same directory as the Python scripts
+# 4. Run any of the example scripts - they will automatically load the .env file 
