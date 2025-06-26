@@ -138,6 +138,39 @@ def create_visualization(data, plot_type="track", title="AlphaGenome Prediction"
 
 def get_openapi_spec():
     """Generate OpenAPI specification for Swagger UI."""
+    # Get host and port from environment or defaults
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 8000))
+    
+    # Determine server URLs based on environment
+    base_url = os.getenv('BASE_URL')
+    if base_url:
+        # Production: use provided base URL
+        servers = [
+            {
+                "url": base_url,
+                "description": "Production server"
+            }
+        ]
+    else:
+        # Development: provide multiple options
+        servers = [
+            {
+                "url": f"http://127.0.0.1:{port}",
+                "description": "Local development server"
+            },
+            {
+                "url": f"http://localhost:{port}",
+                "description": "Local development server (localhost)"
+            }
+        ]
+        # If host is 0.0.0.0, also add the actual network interface
+        if host == '0.0.0.0':
+            servers.append({
+                "url": f"http://0.0.0.0:{port}",
+                "description": "Development server (all interfaces)"
+            })
+    
     return {
         "openapi": "3.0.0",
         "info": {
@@ -177,12 +210,7 @@ The API is well-suited for smaller to medium-scale analyses requiring 1000s of p
                 "url": "https://deepmind.google.com/science/alphagenome/terms"
             }
         },
-        "servers": [
-            {
-                "url": "http://localhost:8000",
-                "description": "Development server"
-            }
-        ],
+        "servers": servers,
         "paths": {
             "/health": {
                 "get": {
@@ -999,9 +1027,22 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
         """Send JSON response."""
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        
+        # Comprehensive CORS headers for production
+        origin = self.headers.get('Origin')
+        if origin:
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            self.send_header('Access-Control-Allow-Origin', '*')
+        
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Max-Age', '86400')  # 24 hours
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        
         self.end_headers()
         self.wfile.write(json.dumps(data, indent=2).encode())
     
@@ -1009,7 +1050,14 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
         """Send HTML response."""
         self.send_response(status)
         self.send_header('Content-Type', 'text/html')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        
+        # CORS headers for HTML responses too
+        origin = self.headers.get('Origin')
+        if origin:
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            self.send_header('Access-Control-Allow-Origin', '*')
+        
         self.end_headers()
         self.wfile.write(html.encode())
     
@@ -1023,7 +1071,23 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
     
     def do_OPTIONS(self):
         """Handle CORS preflight."""
-        self._send_json_response({})
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        
+        # Comprehensive CORS preflight headers
+        origin = self.headers.get('Origin')
+        if origin:
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            self.send_header('Access-Control-Allow-Origin', '*')
+        
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Max-Age', '86400')  # 24 hours
+        self.send_header('Content-Length', '0')
+        
+        self.end_headers()
     
     def do_GET(self):
         """Handle GET requests."""
