@@ -552,7 +552,7 @@ def main():
                 
                 # Common issues and solutions
                 st.markdown("""
-                <div>
+                <div class="card-base">
                 <strong>Common Issues:</strong><br>
                 • <strong>API Key:</strong> Ensure your API key is valid and has quota remaining<br>
                 • <strong>Network:</strong> Check your internet connection<br>
