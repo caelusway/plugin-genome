@@ -17,6 +17,47 @@ from load_env_helper import get_api_key
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def map_output_types(requested_outputs):
+    """Map user-provided output type names to correct AlphaGenome output types."""
+    output_mapping = {
+        # Correct names (pass through)
+        'RNA_SEQ': 'RNA_SEQ',
+        'ATAC': 'ATAC', 
+        'CAGE': 'CAGE',
+        'DNASE': 'DNASE',
+        'CHIP_HISTONE': 'CHIP_HISTONE',
+        'CHIP_TF': 'CHIP_TF',
+        'SPLICE_SITES': 'SPLICE_SITES',
+        'SPLICE_SITE_USAGE': 'SPLICE_SITE_USAGE',
+        'SPLICE_JUNCTIONS': 'SPLICE_JUNCTIONS',
+        'CONTACT_MAPS': 'CONTACT_MAPS',
+        'PROCAP': 'PROCAP',
+        
+        # Common variations that users might try
+        'ATAC_SEQ': 'ATAC',
+        'ATAC-SEQ': 'ATAC',
+        'CHIP_SEQ': 'CHIP_HISTONE',  # Default to histone ChIP-seq
+        'CHIP-SEQ': 'CHIP_HISTONE',
+        'HISTONE': 'CHIP_HISTONE',
+        'TF': 'CHIP_TF',
+        'DNASE_SEQ': 'DNASE',
+        'DNASE-SEQ': 'DNASE',
+        'HIC': 'CONTACT_MAPS',
+        'CONTACT': 'CONTACT_MAPS',
+        '3D': 'CONTACT_MAPS'
+    }
+    
+    mapped_outputs = []
+    for output in requested_outputs:
+        output_upper = output.upper()
+        if output_upper in output_mapping:
+            mapped_outputs.append(output_mapping[output_upper])
+        else:
+            # If not found in mapping, try the original name
+            mapped_outputs.append(output)
+    
+    return mapped_outputs
+
 # Global AlphaGenome client
 alphagenome_client = None
 
@@ -246,11 +287,11 @@ AlphaGenome can predict various **functional genomic outputs**:
 
 ### Core Output Types:
 - **RNA_SEQ**: Gene expression levels (RNA sequencing data)
-- **ATAC_SEQ**: Chromatin accessibility (ATAC-seq peaks)
-- **CHIP_SEQ**: Histone modifications and transcription factor binding
+- **ATAC**: Chromatin accessibility (ATAC-seq peaks)
+- **CHIP_HISTONE**: Histone modifications and transcription factor binding
 - **CAGE**: Transcription start sites (CAGE peaks)
-- **DNase**: DNase hypersensitivity sites
-- **HiC**: 3D genome contact maps
+- **DNASE**: DNase hypersensitivity sites
+- **CONTACT_MAPS**: 3D genome contact maps
 
 ### Biological Applications:
 - **Gene Expression Analysis**: Predict tissue-specific expression patterns
@@ -270,7 +311,7 @@ Each output type provides predictions at different resolutions and scales, enabl
                                     "example": {
                                         "success": True,
                                         "data": {
-                                            "supported_outputs": ["RNA_SEQ", "ATAC_SEQ", "CHIP_SEQ", "CAGE", "DNase", "HiC"],
+                                            "supported_outputs": ["RNA_SEQ", "ATAC", "CHIP_HISTONE", "CAGE", "DNASE", "CONTACT_MAPS"],
                                             "description": "Available genomic output types"
                                         }
                                     }
@@ -378,7 +419,7 @@ Returns statistical summaries and raw prediction arrays for visualization and do
                                         "_description": "1MB interval around CYP2B6 gene"
                                     },
                                     "ontology_terms": ["UBERON:0001114"],
-                                    "requested_outputs": ["RNA_SEQ", "ATAC_SEQ"],
+                                    "requested_outputs": ["RNA_SEQ", "ATAC"],
                                     "_use_case": "Analyze gene expression and chromatin accessibility in liver tissue"
                                 }
                             }
@@ -538,7 +579,7 @@ Create **multi-track genomic plots** showing:
                                                 "std": 0.23,
                                                 "_description": "3 RNA-seq tracks for liver tissue"
                                             },
-                                            "ATAC_SEQ": {
+                                            "ATAC": {
                                                 "shape": [1048576, 1],
                                                 "mean": 0.12,
                                                 "std": 0.08,
@@ -715,8 +756,8 @@ Create **summary bar charts** showing:
                                     "prediction_data": {
                                         "predictions": {
                                             "RNA_SEQ": {"mean": 0.45, "std": 0.12, "_confidence": "high"},
-                                            "ATAC_SEQ": {"mean": 0.23, "std": 0.08, "_confidence": "high"},
-                                            "CHIP_SEQ": {"mean": 0.67, "std": 0.25, "_confidence": "moderate"},
+                                            "ATAC": {"mean": 0.23, "std": 0.08, "_confidence": "high"},
+                                            "CHIP_HISTONE": {"mean": 0.67, "std": 0.25, "_confidence": "moderate"},
                                             "CAGE": {"mean": 0.34, "std": 0.15, "_confidence": "moderate"}
                                         }
                                     },
@@ -813,7 +854,7 @@ Create **summary bar charts** showing:
                             "items": {"type": "string"},
                             "description": "Genomic output types to predict. Use /api/v1/outputs to get available types",
                             "default": ["RNA_SEQ"],
-                            "example": ["RNA_SEQ", "ATAC_SEQ", "CHIP_SEQ"]
+                            "example": ["RNA_SEQ", "ATAC", "CHIP_HISTONE"]
                         }
                     },
                     "description": "Request for genomic interval predictions. Specify the genomic region, tissues of interest, and desired output modalities."
@@ -1198,6 +1239,9 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             ontology_terms = data.get('ontology_terms', ['UBERON:0001157'])
             requested_outputs = data.get('requested_outputs', ['RNA_SEQ'])
             
+            # Map output types to correct names
+            mapped_outputs = map_output_types(requested_outputs)
+            
             # Create genomic interval
             from alphagenome.data import genome
             from alphagenome.models import dna_client
@@ -1208,9 +1252,9 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
                 end=interval_data['end']
             )
             
-            # Convert output types
+            # Convert output types to AlphaGenome objects
             output_types = []
-            for output_name in requested_outputs:
+            for output_name in mapped_outputs:
                 output_type = getattr(dna_client.OutputType, output_name)
                 output_types.append(output_type)
             
@@ -1223,7 +1267,7 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             
             # Process results
             predictions = {}
-            for output_name in requested_outputs:
+            for output_name in mapped_outputs:
                 if hasattr(result, output_name.lower()):
                     output_data = getattr(result, output_name.lower())
                     if hasattr(output_data, 'values'):
@@ -1266,6 +1310,9 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             ontology_terms = data.get('ontology_terms', ['UBERON:0001157'])
             requested_outputs = data.get('requested_outputs', ['RNA_SEQ'])
             
+            # Map output types to correct names
+            mapped_outputs = map_output_types(requested_outputs)
+            
             # Create objects
             from alphagenome.data import genome
             from alphagenome.models import dna_client
@@ -1283,9 +1330,9 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
                 alternate_bases=variant_data['alternate_bases']
             )
             
-            # Convert output types
+            # Convert output types to AlphaGenome objects
             output_types = []
-            for output_name in requested_outputs:
+            for output_name in mapped_outputs:
                 output_type = getattr(dna_client.OutputType, output_name)
                 output_types.append(output_type)
             
@@ -1299,7 +1346,7 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             
             # Process results
             variant_effects = {}
-            for output_name in requested_outputs:
+            for output_name in mapped_outputs:
                 if hasattr(result, 'reference') and hasattr(result, 'alternate'):
                     ref_data = getattr(result.reference, output_name.lower(), None)
                     alt_data = getattr(result.alternate, output_name.lower(), None)
