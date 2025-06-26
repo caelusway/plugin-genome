@@ -31,6 +31,7 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
+    /* Main header styling - works with both themes */
     .main-header {
         font-size: 3rem;
         color: #1f77b4;
@@ -38,122 +39,135 @@ st.markdown("""
         margin-bottom: 2rem;
         font-weight: bold;
     }
+    
+    /* Sub headers - use default theme colors */
     .sub-header {
         font-size: 1.5rem;
-        color: #ffffff !important;
         margin: 1rem 0;
         font-weight: bold;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
+    
+    /* Info boxes with theme-adaptive colors */
     .info-box {
+        background-color: var(--background-color-secondary);
         padding: 1rem;
         border-radius: 0.5rem;
         border-left: 4px solid #1f77b4;
         margin: 1rem 0;
-        color: #333333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .success-box {
+        background-color: var(--background-color-secondary);
         padding: 1rem;
         border-radius: 0.5rem;
         border-left: 4px solid #32cd32;
         margin: 1rem 0;
-        color: #333333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .error-box {
-        background-color: #fff5f5;
+        background-color: var(--background-color-secondary);
         padding: 1rem;
         border-radius: 0.5rem;
         border-left: 4px solid #ff4444;
         margin: 1rem 0;
-        color: #333333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .metric-container {
+        background-color: var(--background-color-secondary);
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 0.5rem 0;
-        color: #333333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    
     .config-summary {
+        background-color: var(--background-color-secondary);
         padding: 0.8rem;
         border-radius: 0.5rem;
         border-left: 4px solid #1f77b4;
         margin: 0.5rem 0;
         font-size: 0.95rem;
-        color: #333333;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    /* Fix text visibility for all elements */
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: #ffffff !important;
-        font-weight: bold !important;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
+    
+    /* Light theme specific styles */
+    @media (prefers-color-scheme: light) {
+        .info-box, .success-box, .error-box, .metric-container, .config-summary {
+            background-color: #f8f9fa;
+            color: #333333;
+        }
+        .main-header {
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
     }
-    .stMarkdown p, .stMarkdown div, .stMarkdown span {
-        color: #ffffff !important;
+    
+    /* Dark theme specific styles */
+    @media (prefers-color-scheme: dark) {
+        .info-box, .success-box, .error-box, .metric-container, .config-summary {
+            background-color: #262730;
+            color: #ffffff;
+        }
+        .main-header {
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.1);
+        }
     }
-    .stMarkdown strong {
-        color: #ffffff !important;
-        font-weight: bold !important;
+    
+    /* Streamlit theme override - works with both light and dark */
+    [data-testid="stApp"] {
+        /* Let Streamlit handle the background */
     }
-    .stMarkdown li {
-        color: #ffffff !important;
+    
+    /* Ensure good contrast for both themes */
+    .stMarkdown a {
+        color: #1f77b4 !important;
+        text-decoration: underline;
     }
-    .stMarkdown ul, .stMarkdown ol {
-        color: #ffffff !important;
+    
+    .stMarkdown a:hover {
+        color: #0d5aa7 !important;
     }
-    /* Fix all text elements */
-    .element-container .stMarkdown {
-        color: #ffffff !important;
+    
+    /* Status text colors - theme adaptive */
+    .status-text-success {
+        color: #32cd32 !important;
+        font-weight: bold;
     }
-    .stText {
-        color: #ffffff !important;
+    
+    .status-text-info {
+        color: #1f77b4 !important;
+        font-weight: bold;
     }
-    /* Make sidebar text darker for contrast */
-    .css-1d391kg {
-        color: #333333 !important;
+    
+    .status-text-default {
+        font-weight: bold;
     }
-    /* Ensure metric labels are visible */
+    
+    /* Make sure metrics are readable */
     .metric-label {
-        color: #ffffff !important;
-        font-weight: bold !important;
+        font-weight: bold;
     }
-    /* Fix button text */
-    .stButton button {
-        color: #ffffff !important;
-    }
-    /* Fix status text and progress text */
-    .stProgress .stText {
-        color: #ffffff !important;
-    }
-    /* Fix expandable sections */
-    .streamlit-expanderHeader {
-        color: #ffffff !important;
-    }
-    /* Fix code blocks */
+    
+    /* Code blocks - adaptive */
     .stCode {
-        background-color: #2d2d2d !important;
-        color: #ffffff !important;
+        background-color: var(--background-color-secondary) !important;
     }
-    /* Fix info/warning/error messages */
-    .stAlert {
-        color: #333333 !important;
+    
+    /* Progress bar text */
+    .stProgress .stText {
+        font-weight: bold;
     }
-    /* Fix main content area text */
-    .main .block-container .stMarkdown {
-        color: #ffffff !important;
+    
+    /* Buttons maintain their theme colors */
+    .stButton button {
+        font-weight: bold;
     }
-    /* Override any remaining dark text */
-    div[data-testid="stMarkdownContainer"] {
-        color: #ffffff !important;
-    }
-    div[data-testid="stMarkdownContainer"] p {
-        color: #ffffff !important;
-    }
-    div[data-testid="stMarkdownContainer"] strong {
-        color: #ffffff !important;
-    }
-    div[data-testid="stMarkdownContainer"] li {
-        color: #ffffff !important;
+    
+    /* Remove any forced colors that break themes */
+    * {
+        /* Let Streamlit handle text colors naturally */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -180,7 +194,7 @@ def main():
     
     # Header
     st.markdown('<h1 class="main-header">🧬 AlphaGenome Interactive Demo</h1>', unsafe_allow_html=True)
-    st.markdown('<div style="color: #ffffff; font-size: 1.1rem; text-align: center; font-weight: 500; margin-bottom: 2rem;"><strong>Explore Google DeepMind\'s AlphaGenome API for genomic variant effect prediction</strong></div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 1.1rem; text-align: center; font-weight: 500; margin-bottom: 2rem;"><strong>Explore Google DeepMind\'s AlphaGenome API for genomic variant effect prediction</strong></div>', unsafe_allow_html=True)
     
     # Sidebar for configuration
     st.sidebar.header("🔧 Configuration")
@@ -329,7 +343,7 @@ def main():
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.markdown('<h2 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📊 Analysis Overview</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="sub-header">📊 Analysis Overview</h2>', unsafe_allow_html=True)
         
         # Compact configuration display
         st.markdown(f"""
@@ -341,7 +355,7 @@ def main():
         """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown('<h2 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">🚀 Run Analysis</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="sub-header">🚀 Run Analysis</h2>', unsafe_allow_html=True)
         
         # Disable button if prediction is running
         button_disabled = st.session_state.prediction_running
@@ -377,7 +391,7 @@ def main():
                 
                 # Common issues and solutions
                 st.markdown("""
-                <div style="color: #ffffff;">
+                <div>
                 <strong>Common Issues:</strong><br>
                 • <strong>API Key:</strong> Ensure your API key is valid and has quota remaining<br>
                 • <strong>Network:</strong> Check your internet connection<br>
@@ -387,7 +401,7 @@ def main():
                 """, unsafe_allow_html=True)
     
     # Information sections
-    st.markdown('<h2 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📚 About AlphaGenome</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="sub-header">📚 About AlphaGenome</h2>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     
@@ -433,7 +447,7 @@ def run_alphagenome_demo(api_key, chromosome, start_pos, end_pos, variant_pos, r
     """Run the AlphaGenome prediction demo"""
     
     # Create progress container
-    st.markdown('<h2 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">⚡ Running Analysis</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="sub-header">⚡ Running Analysis</h2>', unsafe_allow_html=True)
     
     # Progress bar and status
     progress_bar = st.progress(0)
@@ -441,27 +455,27 @@ def run_alphagenome_demo(api_key, chromosome, start_pos, end_pos, variant_pos, r
     
     try:
         # Step 1: Import dependencies
-        status_text.markdown('<p style="color: #ffffff; font-weight: bold;">📦 Importing AlphaGenome modules...</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-default">📦 Importing AlphaGenome modules...</p>', unsafe_allow_html=True)
         progress_bar.progress(10)
         
         from alphagenome.data import genome
         from alphagenome.models import dna_client
         from alphagenome.visualization import plot_components
         
-        status_text.markdown('<p style="color: #32cd32; font-weight: bold;">✅ Imports successful</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-success">✅ Imports successful</p>', unsafe_allow_html=True)
         progress_bar.progress(20)
         
         # Step 2: Create client
-        status_text.markdown('<p style="color: #ffffff; font-weight: bold;">🔧 Setting up AlphaGenome client...</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-default">🔧 Setting up AlphaGenome client...</p>', unsafe_allow_html=True)
         progress_bar.progress(30)
         
         model = dna_client.create(api_key)
         
-        status_text.markdown('<p style="color: #32cd32; font-weight: bold;">✅ Client created successfully</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-success">✅ Client created successfully</p>', unsafe_allow_html=True)
         progress_bar.progress(40)
         
         # Step 3: Define genomic objects
-        status_text.markdown('<p style="color: #ffffff; font-weight: bold;">🧬 Creating genomic interval and variant...</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-default">🧬 Creating genomic interval and variant...</p>', unsafe_allow_html=True)
         progress_bar.progress(50)
         
         interval = genome.Interval(
@@ -477,11 +491,11 @@ def run_alphagenome_demo(api_key, chromosome, start_pos, end_pos, variant_pos, r
             alternate_bases=alt_base,
         )
         
-        status_text.markdown('<p style="color: #32cd32; font-weight: bold;">✅ Genomic objects created</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-success">✅ Genomic objects created</p>', unsafe_allow_html=True)
         progress_bar.progress(60)
         
         # Step 4: Make prediction
-        status_text.markdown('<p style="color: #1f77b4; font-weight: bold;">🔮 Making variant effect prediction... (this may take a moment)</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-info">🔮 Making variant effect prediction... (this may take a moment)</p>', unsafe_allow_html=True)
         progress_bar.progress(70)
         
         outputs = model.predict_variant(
@@ -491,11 +505,11 @@ def run_alphagenome_demo(api_key, chromosome, start_pos, end_pos, variant_pos, r
             requested_outputs=[dna_client.OutputType.RNA_SEQ],
         )
         
-        status_text.markdown('<p style="color: #32cd32; font-weight: bold;">✅ Prediction completed!</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-success">✅ Prediction completed!</p>', unsafe_allow_html=True)
         progress_bar.progress(90)
         
         # Step 5: Process results
-        status_text.markdown('<p style="color: #ffffff; font-weight: bold;">📊 Processing results...</p>', unsafe_allow_html=True)
+        status_text.markdown('<p class="status-text-default">📊 Processing results...</p>', unsafe_allow_html=True)
         progress_bar.progress(100)
         
         # Store results in session state
@@ -533,7 +547,7 @@ def run_alphagenome_demo(api_key, chromosome, start_pos, end_pos, variant_pos, r
 def display_results(outputs, interval, variant, tissue_name):
     """Display the prediction results"""
     
-    st.markdown('<h2 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📈 Prediction Results</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="sub-header">📈 Prediction Results</h2>', unsafe_allow_html=True)
     
     # Extract data
     ref_data = outputs.reference.rna_seq.values
@@ -579,7 +593,7 @@ def display_results(outputs, interval, variant, tissue_name):
         )
     
     # Detailed statistics
-    st.markdown('<h3 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📊 Detailed Statistics</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 class="sub-header">📊 Detailed Statistics</h3>', unsafe_allow_html=True)
     
     stats_col1, stats_col2 = st.columns(2)
     
@@ -610,7 +624,7 @@ def display_results(outputs, interval, variant, tissue_name):
         """, unsafe_allow_html=True)
     
     # Interpretation
-    st.markdown('<h3 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">🎯 Biological Interpretation</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 class="sub-header">🎯 Biological Interpretation</h3>', unsafe_allow_html=True)
     
     if abs(diff_mean) > 0.001:
         effect = "increases" if diff_mean > 0 else "decreases"
@@ -620,13 +634,13 @@ def display_results(outputs, interval, variant, tissue_name):
         st.info(f"The variant {variant.chromosome}:{variant.position} {variant.reference_bases}>{variant.alternate_bases} has minimal effect on RNA expression in {tissue_name.lower()} tissue.")
     
     # Visualization
-    st.markdown('<h3 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📊 Visualization</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 class="sub-header">📊 Visualization</h3>', unsafe_allow_html=True)
     
     try:
         create_visualization(outputs, variant, tissue_name)
         
         # Try AlphaGenome's native visualization too
-        st.markdown('<h3 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">🎨 AlphaGenome Native Visualization</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 class="sub-header">🎨 AlphaGenome Native Visualization</h3>', unsafe_allow_html=True)
         create_alphagenome_native_plot(outputs, variant, tissue_name)
         
     except Exception as e:
@@ -683,7 +697,7 @@ def create_visualization(outputs, variant, tissue_name):
         st.pyplot(fig)
         
         # Show raw data info
-        st.markdown('<h3 style="color: #ffffff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">📊 Raw AlphaGenome API Output</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 class="sub-header">📊 Raw AlphaGenome API Output</h3>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             st.metric("Reference Data Shape", str(ref_data.shape))
