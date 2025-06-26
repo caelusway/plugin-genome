@@ -31,10 +31,57 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
+    /* CSS Custom Properties for theme adaptation */
+    :root {
+        --primary-color: #1f77b4;
+        --success-color: #32cd32;
+        --error-color: #ff4444;
+        --warning-color: #ffa500;
+        --info-color: #1f77b4;
+    }
+    
+    /* Theme-adaptive colors */
+    @media (prefers-color-scheme: light) {
+        :root {
+            --card-bg-color: #ffffff;
+            --card-text-color: #333333;
+            --card-border-color: rgba(0,0,0,0.1);
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --secondary-bg-color: #f8f9fa;
+        }
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --card-bg-color: #262730;
+            --card-text-color: #ffffff;
+            --card-border-color: rgba(255,255,255,0.1);
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            --secondary-bg-color: #1e1e1e;
+        }
+    }
+    
+    /* Fallback for browsers that don't support prefers-color-scheme */
+    [data-theme="light"] {
+        --card-bg-color: #ffffff;
+        --card-text-color: #333333;
+        --card-border-color: rgba(0,0,0,0.1);
+        --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        --secondary-bg-color: #f8f9fa;
+    }
+    
+    [data-theme="dark"] {
+        --card-bg-color: #262730;
+        --card-text-color: #ffffff;
+        --card-border-color: rgba(255,255,255,0.1);
+        --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        --secondary-bg-color: #1e1e1e;
+    }
+    
     /* Main header styling - works with both themes */
     .main-header {
         font-size: 3rem;
-        color: #1f77b4;
+        color: var(--primary-color);
         text-align: center;
         margin-bottom: 2rem;
         font-weight: bold;
@@ -47,102 +94,191 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* Info boxes with theme-adaptive colors */
-    .info-box {
-        background-color: var(--background-color-secondary);
+    /* Base card styling */
+    .card-base {
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
         padding: 1rem;
         border-radius: 0.5rem;
-        border-left: 4px solid #1f77b4;
         margin: 1rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .card-base:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Info boxes with theme-adaptive colors */
+    .info-box {
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--primary-color);
+        margin: 1rem 0;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .info-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .info-box h4 {
+        color: var(--primary-color);
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-box ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+    
+    .info-box li {
+        margin-bottom: 0.3rem;
+        color: var(--card-text-color);
     }
     
     .success-box {
-        background-color: var(--background-color-secondary);
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
         padding: 1rem;
         border-radius: 0.5rem;
-        border-left: 4px solid #32cd32;
+        border-left: 4px solid var(--success-color);
         margin: 1rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .success-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .success-box h4 {
+        color: var(--success-color);
+        margin-top: 0;
+        margin-bottom: 0.5rem;
     }
     
     .error-box {
-        background-color: var(--background-color-secondary);
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
         padding: 1rem;
         border-radius: 0.5rem;
-        border-left: 4px solid #ff4444;
+        border-left: 4px solid var(--error-color);
         margin: 1rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .error-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .error-box h3 {
+        color: var(--error-color);
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .error-box a {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+    
+    .error-box code {
+        background-color: var(--secondary-bg-color);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 0.9em;
     }
     
     .metric-container {
-        background-color: var(--background-color-secondary);
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 0.5rem 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .metric-container h4 {
+        color: var(--primary-color);
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-container ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+    
+    .metric-container li {
+        margin-bottom: 0.3rem;
+        color: var(--card-text-color);
     }
     
     .config-summary {
-        background-color: var(--background-color-secondary);
+        background-color: var(--card-bg-color);
+        color: var(--card-text-color);
         padding: 0.8rem;
         border-radius: 0.5rem;
-        border-left: 4px solid #1f77b4;
+        border-left: 4px solid var(--primary-color);
         margin: 0.5rem 0;
         font-size: 0.95rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: all 0.3s ease;
     }
     
-    /* Light theme specific styles */
-    @media (prefers-color-scheme: light) {
-        .info-box, .success-box, .error-box, .metric-container, .config-summary {
-            background-color: #f8f9fa;
-            color: #333333;
-        }
-        .main-header {
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-    }
-    
-    /* Dark theme specific styles */
-    @media (prefers-color-scheme: dark) {
-        .info-box, .success-box, .error-box, .metric-container, .config-summary {
-            background-color: #262730;
-            color: #ffffff;
-        }
-        .main-header {
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.1);
-        }
-    }
-    
-    /* Streamlit theme override - works with both light and dark */
-    [data-testid="stApp"] {
-        /* Let Streamlit handle the background */
+    .config-summary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
     
     /* Ensure good contrast for both themes */
     .stMarkdown a {
-        color: #1f77b4 !important;
+        color: var(--primary-color) !important;
         text-decoration: underline;
     }
     
     .stMarkdown a:hover {
         color: #0d5aa7 !important;
+        opacity: 0.8;
     }
     
     /* Status text colors - theme adaptive */
     .status-text-success {
-        color: #32cd32 !important;
+        color: var(--success-color) !important;
         font-weight: bold;
     }
     
     .status-text-info {
-        color: #1f77b4 !important;
+        color: var(--info-color) !important;
         font-weight: bold;
     }
     
     .status-text-default {
         font-weight: bold;
+        color: var(--card-text-color);
     }
     
     /* Make sure metrics are readable */
@@ -152,7 +288,9 @@ st.markdown("""
     
     /* Code blocks - adaptive */
     .stCode {
-        background-color: var(--background-color-secondary) !important;
+        background-color: var(--secondary-bg-color) !important;
+        color: var(--card-text-color) !important;
+        border: 1px solid var(--card-border-color) !important;
     }
     
     /* Progress bar text */
@@ -165,9 +303,32 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* Remove any forced colors that break themes */
+    /* Expandable sections */
+    .streamlit-expanderHeader {
+        font-weight: bold;
+    }
+    
+    /* Alert styling */
+    .stAlert {
+        border-radius: 0.5rem;
+        border: 1px solid var(--card-border-color);
+    }
+    
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
+        .main-header {
+            font-size: 2rem;
+        }
+        
+        .info-box, .success-box, .error-box, .metric-container, .config-summary {
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+        }
+    }
+    
+    /* Smooth transitions for theme changes */
     * {
-        /* Let Streamlit handle text colors naturally */
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 </style>
 """, unsafe_allow_html=True)

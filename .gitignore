@@ -1,2 +1,3 @@
 alphagenome-env
 .env
+.env.local
