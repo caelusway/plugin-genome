@@ -1,4 +1,5 @@
 alphagenome
+protobuf>=5.28.3
 numpy
 pandas
 jupyter

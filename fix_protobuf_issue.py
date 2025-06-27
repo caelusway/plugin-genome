@@ -46,7 +46,7 @@ def main():
         ("pip uninstall -y protobuf grpcio grpcio-status", "Uninstalling existing protobuf packages"),
         
         # Install specific compatible versions
-        ("pip install 'protobuf>=4.21.0,<5.0.0'", "Installing compatible protobuf"),
+        ("pip install 'protobuf>=5.28.3'", "Installing compatible protobuf"),
         ("pip install 'grpcio>=1.50.0'", "Installing compatible grpcio"),
         ("pip install 'grpcio-status>=1.50.0'", "Installing compatible grpcio-status"),
         
