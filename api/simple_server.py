@@ -17,6 +17,49 @@ from load_env_helper import get_api_key
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def validate_and_fix_interval(interval_data):
+    """Validate and fix genomic interval to match supported sequence lengths."""
+    chromosome = interval_data['chromosome']
+    start = interval_data['start']
+    end = interval_data['end']
+    
+    # Calculate current length (assuming 1-based input coordinates)
+    current_length = end - start + 1
+    
+    # AlphaGenome supported lengths
+    supported_lengths = [2048, 16384, 131072, 524288, 1048576]
+    
+    logger.info(f"Input interval: {chromosome}:{start}-{end}")
+    logger.info(f"Calculated length: {current_length}")
+    
+    # Find the closest supported length
+    closest_length = min(supported_lengths, key=lambda x: abs(x - current_length))
+    
+    if current_length == closest_length:
+        # Perfect match - convert to 0-based for AlphaGenome
+        return {
+            'chromosome': chromosome,
+            'start': start - 1,  # Convert to 0-based
+            'end': start - 1 + closest_length  # 0-based end
+        }
+    
+    # Need to adjust length
+    logger.info(f"Adjusting length from {current_length} to {closest_length}")
+    
+    # Calculate center of original interval
+    center = (start + end) // 2
+    
+    # Create new interval centered on original, with supported length
+    new_start = center - closest_length // 2
+    new_end = new_start + closest_length
+    
+    # Convert to 0-based coordinates for AlphaGenome
+    return {
+        'chromosome': chromosome,
+        'start': new_start - 1,  # Convert to 0-based
+        'end': new_end - 1      # Convert to 0-based
+    }
+
 def map_output_types(requested_outputs):
     """Map user-provided output type names to correct AlphaGenome output types."""
     output_mapping = {
@@ -1239,6 +1282,10 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             ontology_terms = data.get('ontology_terms', ['UBERON:0001157'])
             requested_outputs = data.get('requested_outputs', ['RNA_SEQ'])
             
+            # Validate and fix interval
+            fixed_interval = validate_and_fix_interval(interval_data)
+            logger.info(f"Fixed interval: {fixed_interval}")
+            
             # Map output types to correct names
             mapped_outputs = map_output_types(requested_outputs)
             
@@ -1247,10 +1294,12 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             from alphagenome.models import dna_client
             
             interval = genome.Interval(
-                chromosome=interval_data['chromosome'],
-                start=interval_data['start'],
-                end=interval_data['end']
+                chromosome=fixed_interval['chromosome'],
+                start=fixed_interval['start'],
+                end=fixed_interval['end']
             )
+            
+            logger.info(f"AlphaGenome interval width: {interval.width}")
             
             # Convert output types to AlphaGenome objects
             output_types = []
@@ -1310,6 +1359,10 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             ontology_terms = data.get('ontology_terms', ['UBERON:0001157'])
             requested_outputs = data.get('requested_outputs', ['RNA_SEQ'])
             
+            # Validate and fix interval
+            fixed_interval = validate_and_fix_interval(interval_data)
+            logger.info(f"Fixed interval: {fixed_interval}")
+            
             # Map output types to correct names
             mapped_outputs = map_output_types(requested_outputs)
             
@@ -1318,17 +1371,21 @@ class AlphaGenomeHandler(BaseHTTPRequestHandler):
             from alphagenome.models import dna_client
             
             interval = genome.Interval(
-                chromosome=interval_data['chromosome'],
-                start=interval_data['start'],
-                end=interval_data['end']
+                chromosome=fixed_interval['chromosome'],
+                start=fixed_interval['start'],
+                end=fixed_interval['end']
             )
             
+            # Variant coordinates are typically 1-based, convert to 0-based for AlphaGenome
             variant = genome.Variant(
                 chromosome=variant_data['chromosome'],
-                position=variant_data['position'],
+                position=variant_data['position'] - 1,  # Convert to 0-based
                 reference_bases=variant_data['reference_bases'],
                 alternate_bases=variant_data['alternate_bases']
             )
+            
+            logger.info(f"AlphaGenome interval width: {interval.width}")
+            logger.info(f"Variant at 0-based position: {variant.position}")
             
             # Convert output types to AlphaGenome objects
             output_types = []
