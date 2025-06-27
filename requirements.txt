@@ -1,8 +1,8 @@
-alphagenome
 protobuf>=5.28.3
 numpy
 pandas
 jupyter
 matplotlib
 python-dotenv
+alphagenome
 streamlit
